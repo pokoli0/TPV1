@@ -1,19 +1,86 @@
-// Lab24.09.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
-//
+// PAULA SIERRA LUQUE
+
 
 #include <iostream>
+#include <windows.h>
+#include <fstream>
+#include <string>
+#include "Date.h"
+
+using namespace std;
+
+struct Ejemplar {
+    int codigo;
+    char tipo;
+    string nombre;
+};
+
+struct Prestamo {
+    int codigo;
+    Date fecha;
+    int usuario;
+};
+
+struct Catalogo {
+    Ejemplar* ejemplar;
+    int tam;
+    int cont;
+};
+
+struct ListaPrestamos {
+    Prestamo* prestamo;
+    int tam;
+    int cont;
+};
+
+
+// devuelve true (1) si ha podido cargar el fichero, false si no
+bool leerCatalogo(Catalogo& c) { // tiene q ser &
+    ifstream entrada;
+    entrada.open("catalogo.txt");
+
+    if (!entrada.is_open()) return false;
+
+    // lee primer numero y lo guarda en tam
+    int tam;
+    entrada >> tam;
+    //c->tam = tam;
+
+    Ejemplar* ejemplares = new Ejemplar();
+
+    // recorro hasta tam
+    for (int i = 0; i < tam; i++) {
+        int cod;
+        entrada >> cod;
+        //c[i].ejemplar->codigo = cod;
+    }
+
+    
+    entrada.close();
+
+    return true;
+}
+
+// devuelve true (1) si ha podido cargar el fichero, false si no
+// 
+bool leerPrestamos() {
+    ifstream catalogo("prestamos.txt");
+    return catalogo.is_open();
+}
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    Catalogo* catalogo = new Catalogo();
+
+    //leerCatalogo(catalogo);
+
+    cout << catalogo->tam << endl;
+    //cout << catalogo[0]->ejemplar->nombre << endl;
+    
+
+
+
+    // borrar la memoria dinamica creada
+    delete catalogo;
 }
 
-// Ejecutar programa: Ctrl + F5 o menú Depurar > Iniciar sin depurar
-// Depurar programa: F5 o menú Depurar > Iniciar depuración
-
-// Sugerencias para primeros pasos: 1. Use la ventana del Explorador de soluciones para agregar y administrar archivos
-//   2. Use la ventana de Team Explorer para conectar con el control de código fuente
-//   3. Use la ventana de salida para ver la salida de compilación y otros mensajes
-//   4. Use la ventana Lista de errores para ver los errores
-//   5. Vaya a Proyecto > Agregar nuevo elemento para crear nuevos archivos de código, o a Proyecto > Agregar elemento existente para agregar archivos de código existentes al proyecto
-//   6. En el futuro, para volver a abrir este proyecto, vaya a Archivo > Abrir > Proyecto y seleccione el archivo .sln
