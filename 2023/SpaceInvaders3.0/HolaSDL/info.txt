@@ -1,0 +1,10 @@
+Práctica realizada por:
+
+· Paula Alemany Rodriguez
+· Bruno Adolfo Sotelo León
+
+-----------------------------------
+
+Funcionalidades opcionales implementadas:
+
+· Animación de los alienígenas

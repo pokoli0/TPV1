@@ -1,0 +1,239 @@
+Práctica 2: SpaceInvaders 2.0
+
+---- OBJETIVOS ----
+
+
+---- FUNCIONALIDADES ----
+
+	· Los aliens bajan y aumentan su velocidad al llegar al borde.
+	· La partida termina si los aliens llegan a la fila del jugador.
+
+  	· Disparadores: 30p, Verdes: 20p, Rojos: 10p
+	· La puntuación se muestra continuamente en la pantalla de juego.
+
+	· Nodriza: Movimiento rápido y aleatorio, pasa por encima de los aliens.
+	· 100p
+	· Muerte con animación.
+
+	· Guardar: (S + "caracter numérico: K"). El archivo se guarda como savedk.txt
+	· Cargar: (L + k). Carga el archivo correspondiente. (Si no existe mostrar error)
+	· Si no se pone la K se cancela la operación
+	· ELEGIR: pausar mientras se espera el número o se hace visible la operación.
+
+
+---- Recordatorios y dudas ----
+	· ¿Qué significa el = 0 de los métodos virtuales puros?
+		- Si ponemos solo el virtual, el método es un método virtual, si ponemos el = 0, el 				método es virtual puro.
+	· Que significan los diferentes guiones del esquema? 
+
+---- POR HACER ---- 
+	· Pasarle el iterador a los objetos al leer el mapa
+	· Hacer bien la constructora de Mothership
+	· Hacer que todos los aliens tengan el mismo MotherShip aunque se cree después
+	· Quitar el magic number del mov de los aliens
+	· Quitar el magic number del mov del cañon
+	· Cambiar lo de que disparen por rachas
+	· Estaría bien un método "Set numberAliens" o algo así
+
+-Colisiones llamadas en:
+	· Update del laser
+	· 
+
+---- CLASES NUEVAS ----
+
+	· Clase GameObject:
+		- Reune las funcionalidades comunes 
+		- Render
+		- Update
+		- Save
+		- Destructora virtual
+		- Puntero al juego
+
+	· Clase SceneObject: Subclase GameObject de la que descienden las clases de la práctica 
+			anterior
+		- Posición del objeto
+		- Vida restante del objeto
+		- Hit("rectángulo de ataque", origen láser): las subclases implementan y gestionan 
+			el método 
+		- Iterador a la lista de objetos en escena (Contador)
+
+	· Clase ShooterAlien: Hereda de Alien
+
+	· Clase Mothership: 
+		- Coordina el mov de los aliens
+		- getDirection
+		- shouldMove
+			Métodos de aliens:
+		- cannotMove
+		- alienDied
+			Informan al juego:
+		- haveLanded
+		- getAlienCount
+
+		COSEJO: Utilizar un enumerado cíclico "state" y un nivel "level"
+
+	· Clase Ufo:
+		- enum {visible, oculto, destruido}
+		- Tiempo aleatorio en oculto
+
+CLASES ANTIGUAS
+
+	· Clase Alien: 
+		- Modificaciones por herencia y nueva clase
+		- Puntero a Mothership
+
+	· Clase Laser: 
+		- bool origen -> char/enum color {r, b}
+		- laser rojo: pupa aliens
+		- laser azul: pupa nave
+
+	· Clase Game:
+		- Lista polimórfica de punteros a SceneObject  (de tipo stdЕ::list<SceneObject*>)
+		- Update, Render... aplican la misma operacion a todos los objetos de la lista
+		- Añadir guardar y cargar partida
+
+
+LISTA DE OBJETOS DE LA ESCENA Y SU ELIMINACIÓN
+
+	· Lista de punteros a todos los objetos de la escena (Tipo SceneObject)
+		- Invoca sus métodos virtuales (Update, render, save o hit)
+		- Estos objetos se crean y se eliminan dinamicamente
+
+	· Lista enlazada (plantilla list STL)
+		- Cada SceneObject tiene un iterador privado a su posición en la lista (tipo plantilla 			list::iterator)
+
+	· SceneObject: métodos
+		- setListIterator
+
+	· Game: métodos
+		- hasDied
+
+ATAQUES Y COLISIONES ENTRE LÁSERES Y OBJETOS
+
+	· Update del láser:
+		- Se mueve
+		- Llama al método "damage" de Game
+		- Game llama al método "hit" de todos los objetos en escena
+		- Comprueba si colisiona el tipo de láser con el objeto
+		- Si se cumplen, el objeto llama al método "hasDied" de Game
+		- Devuelve true al salir de "hit"
+		- el láser llama a "hasDied" pasándole su iterador
+
+PARTIDAS GUARDADAS Y CONFIGURACIONES INICIALES
+
+	· Formato del archivo:
+		- Cada línea representa un elemento
+		- Cada línea comienza con un número que identifica su tipo
+			|0 = cañón , vidas, espera     	                  |
+			|1 = alienígena, subtipo         		  |
+			|2 = alienígena disparador, subtipo, espera	  |
+			|3 = nave nodriza, estado, nivel, espera          |
+			|4 = búnker             			  |
+			|5 = ovni, altura, estado, espera                 |
+			|6 = laser, color               		  |
+			|7 = puntuación (Modificar si se hace "infobar")  | 
+		- Dos números para las coordenadas
+	· GameObject: método "save"
+		virtual void save(stdЕ::ostream& out) const = 0;
+
+	· Debe implementarse en cada objeto de juego para guardar su estado
+
+	· Lectura: Constructores que reciban "stdЕ::istream&"
+
+JERARQUÍA DE EXCEPCIONES
+
+	· Excepciones irrecuperables:
+		- Se capturan en el "main"
+		- SDL_ShowSimpleMessageBox
+
+	· InvadersError: hereda de stdЕ::logic_error
+		- Constructor
+		- Método "what" -> logic_error
+
+	· SDL_Error: hereda de InvadersError
+		- Inicialización y uso de la SDL
+		- SDL_GetError
+
+	· FileNotFoundError: hereda de InvadersError
+		- Fichero no encontrado
+		- Nombre del fichero al darse el error
+
+	· FileFormatError: hereda de InvadersError
+		- Lectura de archivo incorrecta
+		- Nombre del archivo, número de línea y mensaje
+
+
+---- PAUTAS GENERALES OBLIGATORIAS ----
+
+		
+	· Código claro, sin repeticiones y distinciones innecesarias. No abusar de castings ni de 		consultas de tipo en ejecucion
+
+	· No dejar basura
+
+	· Atributos privados o protegidos excepción, constantes del juego estáticas
+
+	· Constantes necesarias y sin literales
+
+	· Métodos menores de 30-40 líneas
+
+	· Código comentado
+
+---- FUNCIONALIDADES OPCIONALES ----
+
+ 	1. Implementar la animación de los alienígenas. La textura proporcionada incluye dos 
+		variantes para cada tipo de alienígena que pueden alternarse secuencialmente.
+
+	2. Implementar el control del cañón mediante el ratón. La pulsación de cualquiera de los 		botones dispará el cañón y este se moverá a su velocidad habitual hacia la posición 		vertical del ratón en la ventana.
+
+	3. Implementa una clase InfoBar cuyo método render se encarga de mostrar en la ventana SDL 
+		una barra de información del juego que incluya al menos el número de vidas restantes
+		y la puntuación actual.
+
+	4. Implementar un soporte primitivo para niveles en el juego, de tal forma que si el jugador 		elimina a todos los alienígenas se cargue un nuevo mapa para continuar jugando. 
+		Los niveles del juego serían una serie de archivos denominados map𝑘.txt que el juego 			cargaría sucesivamente.
+
+	5. Añadir un nuevo efecto a la destrucción del OVNI con el que el jugador consiga 			invulnerabilidad por un tiempo limitado. La representación del cañón debería ser 
+		algo distinta mientras dure el efecto
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+

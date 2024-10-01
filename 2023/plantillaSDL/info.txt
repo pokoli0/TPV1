@@ -1,0 +1,3 @@
+Este proyecto ha sido hecho por Maria Solórzano y Paula Sierra.
+
+el problema que tenemos es: al guardar, a no ser q se haga muy muy rapidamente, los láseres de los aliens se disparan todos a la vez. Esto ocurre porque se cumple el framerate y eso. Podría solucionarse de manera chapucera añadiendo un "lastTimeShot = SDL_GetTicks()", pero dado que save es const, no se puede. Podria añadirse también un método que recorra los aliens y les añada el retardo de guardar, pero no nos ha dado tiempo.

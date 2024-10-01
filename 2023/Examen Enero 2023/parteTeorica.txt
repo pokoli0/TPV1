@@ -1,0 +1,205 @@
+//
+// TPV1 - Examen de enero de 2024
+// Parte teórica
+//
+
+#include <iostream>
+#include <functional>
+
+using namespace std;
+
+//
+// Ejercicio 1
+//
+
+namespace ej1
+{
+	void a()
+	{
+		int n = 1, m = 7;
+		int *p = &n, *q = &m;
+		*q = (*p)++;
+		++(*q);
+		cout << n << " " << m;
+	}
+
+	void b()
+	{
+		char c = '%';
+		char* p = &c;
+		char* q = new char;
+		*q = p;
+		delete p;
+		delete q;
+	}
+
+	void c()
+	{
+		int** ints = new int*[100];
+		for (int i = 0; i < 100; ++i)
+			ints[i] = new int(3);
+		delete ints;
+	}
+
+	class Alien {
+		/* ... */ public: virtual ~Alien() {}  // contexto (no aparece en el enunciado)
+	};
+
+	class Game { /* ... */ };
+	Game* game = nullptr;
+	using Vector2D = pair<int, int>;
+
+	class ShooterAlien : Alien {
+		/* ... */ public: ShooterAlien(Game*, const Vector2D&) {}  // contexto (no aparece en el enunciado)
+	};
+	void move(Alien* alien) { /* ... */ }
+	void shoot(ShooterAlien* shooter) { /* ... */ }
+
+	void e()
+	{
+		Alien* shooter = new ShooterAlien(game, {200, 400});
+		move(shooter);
+		shoot(shooter);
+	}
+
+	class Button {
+		/* ... */ public: void connect(function<void(void)> cb) {}  // contexto
+	};
+
+	class Contador
+	{
+		int cuenta = 0;
+		public:
+		void suma() { cuenta++; }
+	};
+
+	void f()
+	{
+		Button button;  // contexto
+
+		Contador* contador = new Contador;
+		// button tiene método connect(function<void(void)>)
+		button.connect(&Contador::suma);
+	}
+
+	void run()
+	{
+		const char* name = "abcef";
+
+		for (auto fn : {a, b, c, e, f})
+		{
+			cout << "\x1b[1m(" << *name++ << ")\x1b[0m\n";
+			fn();
+		}
+	}
+}
+
+//
+// Ejercicio 3
+//
+
+namespace ej3
+{
+	// Enunciado
+
+	void sh(const char* s, int arg) {
+		cout << s << "(" << arg << ")\n";
+	}
+
+	void sh(const char* s) {
+		cout << s << "\n";
+	}
+
+	class A {
+	protected:
+		int a;
+	public:
+		A(int x) : a(x) { sh("A", a); }
+		virtual ~A() { sh("~A", a); }
+		void f() { sh("A::f"); }
+		virtual void g() { sh("A::g"); }
+		virtual void h() { sh("A::h"); }
+		virtual void m() = 0;
+	};
+
+	class B : public A {
+		int b;
+	public:
+		B(int a, int b) : A(a), b(b) {
+			sh("B", a + b);
+		}
+		~B() { sh("~B", a + b); }
+		void f() { sh("B::f"); }
+		void g() { sh("B::g"); }
+		void m() { sh("B::m"); }
+	};
+
+	// Preguntas
+
+	void a()
+	{
+		A a(4);
+		B b = a;
+		b.f();
+	}
+
+	void b()
+	{
+		A* a = new B(1, 7);
+		a->f();
+		a->g();
+		a->h();
+		a->m();
+		delete a;
+	}
+
+	void c()
+	{
+		B* b = new B(2, 3);
+		b->f();
+		b->g();
+		b->h();
+		b->m();
+		delete b;
+	}
+
+	void d()
+	{
+		A* a = new B(0, 0);
+		B* b1 = static_cast<B*>(a);
+		B* b2 = dynamic_cast<B*>(a);
+		(*b1).m();
+		b2->m();
+	}
+
+	void e()
+	{
+		A** as = new A*[3];
+		B b2(2, 0);
+		as[0] = new B(1, 0);
+		as[1] = &b2;
+		as[2] = as[0];
+		for (int i = 0; i <= 3; ++i)
+			as[i]->g();
+	}
+
+	void run()
+	{
+		const char* name = "abcde";
+
+		for (auto fn : {a, b, c, d, e})
+		{
+			cout << "\x1b[1m(" << *name++ << ")\x1b[0m\n";
+			fn();
+		}
+	}
+}
+
+int main()
+{
+	cout << "Ejercicio 1\n";
+	ej1::run();
+
+	cout << "\nEjercicio 3\n";
+	ej3::run();
+}

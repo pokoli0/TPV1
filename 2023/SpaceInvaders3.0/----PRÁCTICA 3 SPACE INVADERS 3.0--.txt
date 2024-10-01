@@ -1,0 +1,166 @@
+----PRÁCTICA 3: SPACE INVADERS 3.0----
+
+----OBLIGATORIO----
+
+· Muerte UFO: Lanza powerUps con una cierta probabilidad
+	- (1) Invulnerabilidad del cañón durante x tiempo -> Se consigue al coger el escudo
+	- (2) Bomba; causa daño al jugador y búnkeres, tiene 2 vidas (Puede atacar 2 veces)
+	- (3) No ocurre nada.
+
+----Menus----
+
+*Se puede usar en todos el ratón*
+
+· Menú principal en pantalla SDL
+	- Empezar una partida nueva
+	- Cargar una partida guardada por código
+		* Si no es válido informar con "SDL_ShowSimpleMessageBox (Se continua en el menú)s
+	- Salir del juego
+
+· Menú de pausa (esc)
+	- Reanudar la partida
+	- Guardar partida (Pide código numérico)
+	- Cargar partida guardada
+	- Salir del juego
+
+· Menú fin (Cuando se acaba la partida)
+	- Ganar/Perder
+	- Menú principal
+	- Salir de la app
+
+
+----DETALLES DE IMPLEMENTACIÓN----
+
+----Estados del juego----
+
+	_Maquina de estados_
+		*clases*
+
+			· GameStateMachine -> 
+				Atributos
+						Pila de estados (stack<GameState*>)
+				Métodos
+						pushState
+						replaceState
+						popState
+
+				Game delegará del estado actual
+						update
+						render
+						handleEvent
+
+			· Clase GameState ->
+				Atributos
+						Colección objetos del juego (GameList<GameObject, true>)
+						Manejadores de eventos (list<EventHandler*>)
+						Puntero a Game
+		
+				Métodos
+						update
+						render
+						handleEvent
+						addEventListener
+						addObject
+
+			· Clase PlayState ->
+						Toma muchas de las propiedades de Game: damage, hasDied... se trasladan aquí
+						Lista de GameObjects heredada de GameState
+						Lista de objetos de la escena (GameList <SceneObjects>)
+
+			· Clase MainMenuState, PauseState, EndState ->
+						Subclases de GameState
+						Objetos Button e imágenes
+
+			· Clase Game ->	(SDLApplication)
+				Atributos
+						Puntero a SDL_Window
+						Puntero a SDL_Renderer
+						Array de texturas
+						Maquina de estados
+
+						La app termina cuando la pila de estados queda vacía o con exit	
+
+			· GameObject ->
+				Atributos
+						Puntero a GameState	
+
+			· SceneObject ->	
+				Atributos
+						Puntero a PlayState				
+
+
+
+----Botones y eventos----
+
+Se consideran objetos del juego (update y Render)
+Reaccionan a eventos de SDL y emiten eventos
+
+	· Clase Button ->
+				Subclase de GameObject y EventHandler
+		Atributos
+				Textura
+				Funcion/es en caso de ser pulsados (Button :: Callback) (std::function<void(void)>) //Se llamarán en handleEvent
+		Métodos
+				connect ->
+					button.connect([this]() { método(); }); Й// expresión lambda
+					button.connect(stdЕ::bind(&ClaseЕ::método, this)); Й// puntero al método + objeto
+
+	· Clase EventHandler ->
+				Clase Abstracta
+		Método virtual puro
+				handleEvent(SDL_Event) // Game se encarga de capturar los eventos con SDL_PollEvent y lo retransmitirá a todos los oyentes de tipo EventHandler
+							  Guarda una lista de punteros 
+				Cannon y Button implementan la interfaz y establecerán cómo responder a los eventos
+
+
+----Recompensas y bombas----
+
+Recompensables: escudo/bomba, tipo SceneObject
+
+	· Clase Reward ->
+				Caerá a vel const desde el ovni y desaparece si llega al borde
+		Atributos
+				Textura
+				Callback de acción al colisionar
+		Métodos
+				Para detectar colisiones
+				update: llama a mayGrantReward (PlayState) (con el rect)
+					no interactúan con otros objetos
+					no se salvan al guardar partida
+	· Clase Bomb ->
+				Láser con 2 vidas y otra apariencia
+				En cada colisión solo causa y sufre 1 de daño
+
+
+
+
+
+
+
+Clase GameList (No olvidar)
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
